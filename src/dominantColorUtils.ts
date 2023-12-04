@@ -33,3 +33,35 @@ export const calculateDominantColor = (
 
   return `rgb(${dominantRGB})`;
 };
+
+export const fetchImageAndCalculateDominantColor = (
+  imageUrl: string,
+  sampleSize: number
+): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    fetch(imageUrl)
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        return response.blob();
+      })
+      .then((blob) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(blob);
+        reader.onloadend = () => {
+          const base64data = reader.result as string;
+          const img = new Image();
+          img.src = base64data;
+          img.crossOrigin = "Anonymous"; // Set crossOrigin attribute
+          img.onload = () => {
+            const dominantColor = calculateDominantColor(img, sampleSize);
+            resolve(dominantColor);
+          };
+        };
+      })
+      .catch((error) => {
+        reject("Failed to load the image");
+      });
+  });
+};

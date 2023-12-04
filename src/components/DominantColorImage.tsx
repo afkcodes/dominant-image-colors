@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { calculateDominantColor } from "../dominantColorUtils";
+import { fetchImageAndCalculateDominantColor } from "../dominantColorUtils";
 
 interface DominantColorImageProps {
   imageUrl: string;
@@ -15,31 +15,13 @@ const DominantColorImage: React.FC<DominantColorImageProps> = ({
   const [isImageLoaded, setIsImageLoaded] = useState<boolean>(false);
 
   useEffect(() => {
-    fetch(imageUrl)
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Network response was not ok");
-        }
-        return response.blob();
-      })
-      .then((blob) => {
-        const reader = new FileReader();
-        reader.readAsDataURL(blob);
-        reader.onloadend = () => {
-          const base64data = reader.result as string;
-          const img = new Image();
-          img.src = base64data;
-          img.crossOrigin = "Anonymous"; // Set crossOrigin attribute
-
-          img.onload = () => {
-            const color = calculateDominantColor(img, sampleSize); // Use the utility function
-            setDominantColor(color);
-            setIsImageLoaded(true);
-          };
-        };
+    fetchImageAndCalculateDominantColor(imageUrl, sampleSize)
+      .then((color) => {
+        setDominantColor(color);
+        setIsImageLoaded(true);
       })
       .catch((error) => {
-        setError("Failed to load the image");
+        setError(error);
       });
   }, [imageUrl, sampleSize]);
 
