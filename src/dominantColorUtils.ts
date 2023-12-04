@@ -39,7 +39,9 @@ export const fetchImageAndCalculateDominantColor = (
   sampleSize: number
 ): Promise<string> => {
   return new Promise((resolve, reject) => {
-    fetch(imageUrl)
+    fetch(
+      `http://localhost:5000/proxyImage?url=${encodeURIComponent(imageUrl)}`
+    )
       .then((response) => {
         if (!response.ok) {
           throw new Error("Network response was not ok");
